@@ -7,7 +7,6 @@ import (
 
 	"github.com/NarthurN/metrics-alerter/internal/model"
 	def "github.com/NarthurN/metrics-alerter/internal/repository"
-	"github.com/samber/lo"
 )
 
 // Проверяем, что MemStorage реализует интерфейс ServerRepository
@@ -71,15 +70,13 @@ func (m *MemStorage) SetCounterByName(_ context.Context, nameMetrics string, val
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	metrics, ok := m.gauges[nameMetrics]
-	if !ok {
-		return fmt.Errorf("в базе нет метрики с именем %s", nameMetrics)
-	}
+	metrics := m.counters[nameMetrics]
 
+	v := float64(valueMetrics)
 	if metrics.Value == nil {
-		metrics.Value = lo.ToPtr(float64(valueMetrics))
+		metrics.Value = &v
 	} else {
-		*metrics.Value += float64(valueMetrics)
+		*metrics.Value += v
 	}
 
 	m.counters[nameMetrics] = metrics
