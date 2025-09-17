@@ -8,8 +8,9 @@ import (
 
 // Интерфейс для работы с базой данных метрик
 type ServerRepository interface {
-	Get(ctx context.Context, nameMetric string) (metric model.Metrics, err error)
-	Set(ctx context.Context, nameMetric string, metric model.Metrics) (err error)
-	Delete(ctx context.Context, nameMetric string) (err error)
-	Update(ctx context.Context, nameMetric string, metric model.Metrics) (err error)
+	GetGaugeByName(ctx context.Context, nameMetrics string) (model.Metrics, error)
+	SetGaugeByName(ctx context.Context, nameMetrics string, valueMetrics float64) error
+	GetCounterByName(ctx context.Context, nameMetrics string) (model.Metrics, error)
+	SetCounterByName(ctx context.Context, nameMetrics string, valueMetrics int64) error
+	GetAllMetrics(ctx context.Context, nameMetrics string, valueMetrics int64) ([]model.Metrics, error)
 }
