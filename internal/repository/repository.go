@@ -12,5 +12,5 @@ type ServerRepository interface {
 	SetGaugeByName(ctx context.Context, nameMetrics string, valueMetrics float64) error
 	GetCounterByName(ctx context.Context, nameMetrics string) (model.Metrics, error)
 	SetCounterByName(ctx context.Context, nameMetrics string, valueMetrics int64) error
-	GetAllMetrics(ctx context.Context, nameMetrics string, valueMetrics int64) ([]model.Metrics, error)
+	GetAllMetrics(ctx context.Context) ([]model.Metrics, error)
 }

@@ -9,6 +9,13 @@ import (
 
 func ValidateMetrics(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		contentType := r.Header.Get("Content-Type")
+		if contentType != "text/plain" {
+			w.WriteHeader(http.StatusBadRequest)
+			return
+		}
+
+
 		metricType := r.PathValue("metricType")
 		metricName := r.PathValue("metricName")
 		metricValue := r.PathValue("metricValue")

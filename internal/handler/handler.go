@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/NarthurN/metrics-alerter/internal/service"
@@ -15,6 +16,19 @@ func NewHandler(s service.ServerService) *Handler {
 }
 
 func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
+	metricType := r.PathValue("metricType")
+	metricName := r.PathValue("metricName")
+	metricValue := r.PathValue("metricValue")
+
+	err := h.service.SetMetricByName(r.Context(), metricName, metricType, metricValue)
+	if err != nil {
+		log.Println("SetMetricByName:", err.Error())
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte("Внутренняя ошибка"))
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8 ")
 	w.WriteHeader(http.StatusOK)
 }
 

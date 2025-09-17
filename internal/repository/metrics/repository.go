@@ -88,7 +88,7 @@ func (m *MemStorage) SetCounterByName(_ context.Context, nameMetrics string, val
 }
 
 // Получение всех метрик
-func (m *MemStorage) GetAllMetrics(_ context.Context, nameMetrics string, valueMetrics int64) ([]model.Metrics, error) {
+func (m *MemStorage) GetAllMetrics(_ context.Context) ([]model.Metrics, error) {
 	countMetrics := len(m.counters) + len(m.gauges)
 	allMetrics := make([]model.Metrics, 0, countMetrics)
 
