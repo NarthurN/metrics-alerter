@@ -8,6 +8,6 @@ import (
 
 type ServerService interface {
 	AllMetrics(ctx context.Context) ([]model.Metrics, error)
-	GetMetricByName(ctx context.Context, nameMetric, typeMetric string) (model.Metrics, error)
+	GetMetricByName(ctx context.Context, nameMetric string) (model.Metrics, error)
 	SetMetricByName(ctx context.Context, nameMetric, typeMetric, valueMetric string) error
 }

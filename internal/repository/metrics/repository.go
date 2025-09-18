@@ -14,23 +14,21 @@ var _ def.ServerRepository = (*MemStorage)(nil)
 
 type MemStorage struct {
 	mu       sync.RWMutex
-	gauges   map[string]model.Metrics
-	counters map[string]model.Metrics
+	metrics   map[string]model.Metrics
 }
 
 func NewMemStorage() *MemStorage {
 	return &MemStorage{
-		gauges:   make(map[string]model.Metrics),
-		counters: make(map[string]model.Metrics),
+		metrics:   make(map[string]model.Metrics),
 	}
 }
 
 // Получить метрику gauge по имени
-func (m *MemStorage) GetGaugeByName(_ context.Context, nameMetrics string) (model.Metrics, error) {
+func (m *MemStorage) GetMetricByName(_ context.Context, nameMetrics string) (model.Metrics, error) {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 
-	metrics, ok := m.gauges[nameMetrics]
+	metrics, ok := m.metrics[nameMetrics]
 	if !ok {
 		return model.Metrics{}, fmt.Errorf("в базе нет метрики с именем %s", nameMetrics)
 	}
@@ -47,22 +45,9 @@ func (m *MemStorage) SetGaugeByName(_ context.Context, nameMetrics string, value
 		Value: &valueMetrics,
 	}
 
-	m.gauges[nameMetrics] = newGaugeMetric
+	m.metrics[nameMetrics] = newGaugeMetric
 
 	return nil
-}
-
-// Получить метрику counter по имени
-func (m *MemStorage) GetCounterByName(_ context.Context, nameMetrics string) (model.Metrics, error) {
-	m.mu.RLock()
-	defer m.mu.RUnlock()
-
-	metrics, ok := m.counters[nameMetrics]
-	if !ok {
-		return model.Metrics{}, fmt.Errorf("в базе нет метрики с именем %s", nameMetrics)
-	}
-
-	return metrics, nil
 }
 
 // Установить новое значение для метрики (прибавляет к старому значению)
@@ -70,7 +55,7 @@ func (m *MemStorage) SetCounterByName(_ context.Context, nameMetrics string, val
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	metrics := m.counters[nameMetrics]
+	metrics := m.metrics[nameMetrics]
 
 	v := float64(valueMetrics)
 	if metrics.Value == nil {
@@ -79,21 +64,17 @@ func (m *MemStorage) SetCounterByName(_ context.Context, nameMetrics string, val
 		*metrics.Value += v
 	}
 
-	m.counters[nameMetrics] = metrics
+	m.metrics[nameMetrics] = metrics
 
 	return nil
 }
 
 // Получение всех метрик
 func (m *MemStorage) GetAllMetrics(_ context.Context) ([]model.Metrics, error) {
-	countMetrics := len(m.counters) + len(m.gauges)
+	countMetrics := len(m.metrics)
 	allMetrics := make([]model.Metrics, 0, countMetrics)
 
-	for _, v := range m.counters {
-		allMetrics = append(allMetrics, v)
-	}
-
-	for _, v := range m.gauges {
+	for _, v := range m.metrics {
 		allMetrics = append(allMetrics, v)
 	}
 

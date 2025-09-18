@@ -21,26 +21,13 @@ func NewMetricsService(s repository.ServerRepository) *MetricsService {
 }
 
 // Получение
-func (m *MetricsService) GetMetricByName(ctx context.Context, nameMetric, typeMetric string) (model.Metrics, error) {
-	if typeMetric == model.Gauge {
-		metric, err := m.storage.GetGaugeByName(ctx, nameMetric)
-		if err != nil {
-			return model.Metrics{}, err
-		}
-
-		return metric, nil
+func (m *MetricsService) GetMetricByName(ctx context.Context, nameMetric string) (model.Metrics, error) {
+	metric, err := m.storage.GetMetricByName(ctx, nameMetric)
+	if err != nil {
+		return model.Metrics{}, err
 	}
 
-	if typeMetric == model.Counter {
-		metric, err := m.storage.GetCounterByName(ctx, nameMetric)
-		if err != nil {
-			return model.Metrics{}, err
-		}
-
-		return metric, nil
-	}
-
-	return model.Metrics{}, fmt.Errorf("невалидный тип метрик typeMetric %s", typeMetric)
+	return metric, nil
 }
 
 // Сохранение
@@ -70,40 +57,6 @@ func (m *MetricsService) SetMetricByName(ctx context.Context, nameMetric, typeMe
 	}
 
 	return fmt.Errorf("невалидный тип метрик typeMetric %s", typeMetric)
-}
-
-func (m *MetricsService) GetGaugeMetricByName(ctx context.Context, nameMetric string) (model.Metrics, error) {
-	metrics, err := m.storage.GetGaugeByName(ctx, nameMetric)
-	if err != nil {
-		return model.Metrics{}, err
-	}
-
-	return metrics, nil
-}
-
-func (m *MetricsService) SetGaugeMetricByName(ctx context.Context, nameMteric string, valueMetric float64) error {
-	if err := m.storage.SetGaugeByName(ctx, nameMteric, valueMetric); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (m *MetricsService) GetCounterMetricByName(ctx context.Context, nameMetric string) (model.Metrics, error) {
-	metrics, err := m.storage.GetCounterByName(ctx, nameMetric)
-	if err != nil {
-		return model.Metrics{}, err
-	}
-
-	return metrics, nil
-}
-
-func (m *MetricsService) SetCounterMetricByName(ctx context.Context, nameMetric string, valueMetric int64) error {
-	if err := m.storage.SetCounterByName(ctx, nameMetric, valueMetric); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (m *MetricsService) AllMetrics(ctx context.Context) ([]model.Metrics, error) {
