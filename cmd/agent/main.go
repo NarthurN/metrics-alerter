@@ -55,8 +55,8 @@ func (m *metricsStorage) UpdateMetricsInStorage(metrics []metric) {
 	mtrc, ok := m.storage[PollCount]
 	if !ok {
 		m.storage[PollCount] = &metric{
-			nameM: PollCount,
-			typeM: counter,
+			nameM:  PollCount,
+			typeM:  counter,
 			valueM: 1,
 		}
 
@@ -94,11 +94,7 @@ func main() {
 
 			metricsInfo := getMetricsFromMemStats(&ms)
 			metrics.UpdateMetricsInStorage(metricsInfo)
-			log.Println("Обновили метрики")
-			for _, v := range metrics.GetMetricsFromStorage() {
-				log.Println(v)
-			}
-		case <- tickerReportInterval.C:
+		case <-tickerReportInterval.C:
 			for _, mtrc := range metrics.GetMetricsFromStorage() {
 				url := baseURL + fmt.Sprintf("%s/%s/%f", mtrc.nameM, mtrc.typeM, mtrc.valueM)
 				resp, err := http.Post(url, contentType, http.NoBody)
@@ -106,6 +102,7 @@ func main() {
 					log.Println("ошибка http.Post:", err)
 					return
 				}
+				defer resp.Body.Close()
 
 				_, err = io.Copy(io.Discard, resp.Body)
 				if err != nil {
