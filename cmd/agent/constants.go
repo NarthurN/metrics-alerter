@@ -6,7 +6,7 @@ const (
 	// настройки
 
 	baseURL = "http://localhost:8080/update/"
-	contentType = "Content-Type: text/plain"
+	contentType = "text/plain"
 
 	// Частота опроса runtime (по заданию — 2 секунды).
 	pollInterval = 2 * time.Second

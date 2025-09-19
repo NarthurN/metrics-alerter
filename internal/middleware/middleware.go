@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 	"strconv"
 
@@ -30,15 +31,25 @@ func ValidateMetrics(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
+		if parsedValue, err := strconv.ParseFloat(metricValue, 64); err != nil {
+			log.Println("gauge не парсится")
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("ошибка strconv.ParseFloat(metricValue, 64)"))
+			return
+		}
+
+		if metricType == model.Counter {
+			parsedValueInt, ok := parsedValue
+		}
+
 		switch metricType {
 		case model.Gauge:
-			if _, err := strconv.ParseFloat(metricValue, 64); err != nil {
-				w.WriteHeader(http.StatusBadRequest)
-				return
-			}
 		case model.Counter:
+
 			if _, err := strconv.ParseInt(metricValue, 10, 64); err != nil {
+				log.Println("counter не парсится")
 				w.WriteHeader(http.StatusBadRequest)
+				w.Write([]byte("ошибка strconv.ParseInt(metricValue, 10, 64)"))
 				return
 			}
 		}
