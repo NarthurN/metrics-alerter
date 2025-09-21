@@ -20,15 +20,15 @@ func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 	metricName := r.PathValue("metricName")
 	metricValue := r.PathValue("metricValue")
 
+	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
+
 	err := h.service.SetMetricByName(r.Context(), metricName, metricType, metricValue)
 	if err != nil {
 		log.Println("SetMetricByName:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("Внутренняя ошибка"))
 		return
 	}
 
-	w.Header().Set("Content-Type", "text/plain; charset=utf-8 ")
 	w.WriteHeader(http.StatusOK)
 }
 
