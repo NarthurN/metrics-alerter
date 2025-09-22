@@ -20,13 +20,19 @@ type MockServerService struct {
 	mock.Mock
 }
 
+// GetAllMetrics implements service.ServerService.
+func (m *MockServerService) GetAllMetrics(ctx context.Context) ([]model.Metrics, error) {
+	args := m.Called(ctx)
+	return nil, args.Error(1)
+}
+
 func (m *MockServerService) AllMetrics(ctx context.Context) ([]model.Metrics, error) {
 	args := m.Called(ctx)
 	return nil, args.Error(1)
 }
 
-func (m *MockServerService) GetMetricByName(ctx context.Context, nameMetric string) (model.Metrics, error) {
-	args := m.Called(ctx, nameMetric)
+func (m *MockServerService) GetMetricByName(ctx context.Context, nameMetric string, typeMetric string) (model.Metrics, error) {
+	args := m.Called(ctx, nameMetric, typeMetric)
 	return model.Metrics{}, args.Error(1)
 }
 

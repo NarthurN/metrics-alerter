@@ -8,6 +8,7 @@ import (
 	"github.com/NarthurN/metrics-alerter/internal/model"
 	"github.com/NarthurN/metrics-alerter/internal/repository"
 	def "github.com/NarthurN/metrics-alerter/internal/service"
+	custom "github.com/NarthurN/metrics-alerter/internal/service/errors"
 )
 
 var _ def.ServerService = (*MetricsService)(nil)
@@ -21,7 +22,11 @@ func NewMetricsService(s repository.ServerRepository) *MetricsService {
 }
 
 // Получение
-func (m *MetricsService) GetMetricByName(ctx context.Context, nameMetric string) (model.Metrics, error) {
+func (m *MetricsService) GetMetricByName(ctx context.Context, nameMetric string, typeMetric string) (model.Metrics, error) {
+	if typeMetric != model.Gauge && typeMetric != model.Counter {
+		return model.Metrics{}, custom.ErrInvalidType
+	}
+
 	metric, err := m.storage.GetMetricByName(ctx, nameMetric)
 	if err != nil {
 		return model.Metrics{}, err
@@ -59,7 +64,7 @@ func (m *MetricsService) SetMetricByName(ctx context.Context, nameMetric, typeMe
 	return fmt.Errorf("невалидный тип метрик typeMetric %s", typeMetric)
 }
 
-func (m *MetricsService) AllMetrics(ctx context.Context) ([]model.Metrics, error) {
+func (m *MetricsService) GetAllMetrics(ctx context.Context) ([]model.Metrics, error) {
 	metrics, err := m.storage.GetAllMetrics(ctx)
 	if err != nil {
 		return nil, err

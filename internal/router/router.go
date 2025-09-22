@@ -18,7 +18,14 @@ func NewRouter(s service.ServerService) http.Handler {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 
+	// Обновление значений метрик
 	r.With(m.ValidateMetrics).Post("/update/{metricType}/{metricName}/{metricValue}", h.UpdateMetric)
+
+	// Получение значений метрик по имени
+	r.Get("/value/{metricType}/{metricName}", h.GetMetricByName)
+
+	// Получение всех значений метрик
+	r.Get("/", h.GetAllMetrics)
 
 	return r
 }
