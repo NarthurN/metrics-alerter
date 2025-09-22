@@ -13,11 +13,11 @@ import (
 func ValidateMetrics(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Проверка Content-Type на text/plain
-		contentType := r.Header.Get("Content-Type")
-		if contentType != "text/plain" {
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
+		// contentType := r.Header.Get("Content-Type")
+		// if contentType != "text/plain" {
+		// 	w.WriteHeader(http.StatusBadRequest)
+		// 	return
+		// }
 
 		metricType := chi.URLParam(r, "metricType")
 		metricName := chi.URLParam(r, "metricName")
