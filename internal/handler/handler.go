@@ -55,7 +55,7 @@ func (h *Handler) GetMetricByName(w http.ResponseWriter, r *http.Request) {
 	case model.Counter:
 		value = fmt.Sprintf("%d", *metric.Delta)
 	case model.Gauge:
-		value = fmt.Sprintf("%f", *metric.Value)
+		value = fmt.Sprintf("%.3f", *metric.Value)
 	}
 
 	w.Write([]byte(value))
