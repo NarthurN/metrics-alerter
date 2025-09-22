@@ -7,9 +7,10 @@ import (
 	"strconv"
 
 	"github.com/NarthurN/metrics-alerter/internal/model"
+	"github.com/go-chi/chi/v5"
 )
 
-func ValidateMetrics(next http.HandlerFunc) http.HandlerFunc {
+func ValidateMetrics(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// Проверка Content-Type на text/plain
 		contentType := r.Header.Get("Content-Type")
@@ -18,9 +19,9 @@ func ValidateMetrics(next http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		metricType := r.PathValue("metricType")
-		metricName := r.PathValue("metricName")
-		metricValue := r.PathValue("metricValue")
+		metricType := chi.URLParam(r, "metricType")
+		metricName := chi.URLParam(r, "metricName")
+		metricValue := chi.URLParam(r, "metricValue")
 
 		// Проверка metricName на пустоту
 		if metricName == "" {

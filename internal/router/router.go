@@ -6,14 +6,19 @@ import (
 	"github.com/NarthurN/metrics-alerter/internal/handler"
 	m "github.com/NarthurN/metrics-alerter/internal/middleware"
 	"github.com/NarthurN/metrics-alerter/internal/service"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func NewRouter(s service.ServerService) http.Handler {
-	mux := http.NewServeMux()
+	r := chi.NewRouter()
+
 	h := handler.NewHandler(s)
 
-	mux.HandleFunc("/", h.NotFound)
-	mux.HandleFunc("POST /update/{metricType}/{metricName}/{metricValue}", m.ValidateMetrics(h.UpdateMetric))
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
 
-	return mux
+	r.With(m.ValidateMetrics).Post("/update/{metricType}/{metricName}/{metricValue}", h.UpdateMetric)
+
+	return r
 }

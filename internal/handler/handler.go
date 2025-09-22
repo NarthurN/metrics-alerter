@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/NarthurN/metrics-alerter/internal/service"
+	"github.com/go-chi/chi/v5"
 )
 
 type Handler struct {
@@ -16,9 +17,9 @@ func NewHandler(s service.ServerService) *Handler {
 }
 
 func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
-	metricType := r.PathValue("metricType")
-	metricName := r.PathValue("metricName")
-	metricValue := r.PathValue("metricValue")
+	metricType := chi.URLParam(r, "metricType")
+	metricName := chi.URLParam(r, "metricName")
+	metricValue := chi.URLParam(r, "metricValue")
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
@@ -30,8 +31,4 @@ func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-}
-
-func (h *Handler) NotFound(w http.ResponseWriter, r *http.Request) {
-	http.NotFound(w, r)
 }

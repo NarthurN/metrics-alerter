@@ -9,6 +9,9 @@ import (
 
 	"github.com/NarthurN/metrics-alerter/internal/handler"
 	"github.com/NarthurN/metrics-alerter/internal/model"
+	"github.com/NarthurN/metrics-alerter/internal/router"
+	"github.com/go-chi/chi/v5"
+	"github.com/go-resty/resty/v2"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -76,9 +79,12 @@ func TestHandler_UpdateMetric(t *testing.T) {
 
 			h := handler.NewHandler(mockService)
 			req := httptest.NewRequest(http.MethodPost, "/update/", nil)
-			req.SetPathValue("metricType", tt.metricType)
-			req.SetPathValue("metricName", tt.metricName)
-			req.SetPathValue("metricValue", tt.metricValue)
+
+			rctx := chi.NewRouteContext()
+			rctx.URLParams.Add("metricType", tt.metricType)
+			rctx.URLParams.Add("metricName", tt.metricName)
+			rctx.URLParams.Add("metricValue", tt.metricValue)
+			req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
 
 			rr := httptest.NewRecorder()
 
@@ -90,6 +96,44 @@ func TestHandler_UpdateMetric(t *testing.T) {
 			}
 
 			mockService.AssertExpectations(t)
+		})
+	}
+}
+
+func TestHandler_UpdateMetric_success(t *testing.T) {
+	mockService := new(MockServerService)
+	mockService.On("SetMetricByName", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(nil)
+
+	r := router.NewRouter(mockService)
+	srv := httptest.NewServer(r)
+	defer srv.Close()
+
+	testCases := []struct {
+		method       string
+		expectedCode int
+		metricType   string
+		metricName   string
+		metricValue  string
+	}{
+		{method: http.MethodPost, expectedCode: http.StatusOK, metricType: "gauge", metricName: "TestMetric", metricValue: "123.45"},
+		{method: http.MethodGet, expectedCode: http.StatusMethodNotAllowed, metricType: "gauge", metricName: "TestMetric", metricValue: "123.45"},
+		{method: http.MethodPut, expectedCode: http.StatusMethodNotAllowed, metricType: "gauge", metricName: "TestMetric", metricValue: "123.45"},
+		{method: http.MethodDelete, expectedCode: http.StatusMethodNotAllowed, metricType: "gauge", metricName: "TestMetric", metricValue: "123.45"},
+		{method: http.MethodPatch, expectedCode: http.StatusMethodNotAllowed, metricType: "gauge", metricName: "TestMetric", metricValue: "123.45"},
+		{method: http.MethodOptions, expectedCode: http.StatusMethodNotAllowed, metricType: "gauge", metricName: "TestMetric", metricValue: "123.45"},
+		{method: http.MethodHead, expectedCode: http.StatusMethodNotAllowed, metricType: "gauge", metricName: "TestMetric", metricValue: "123.45"},
+	}
+
+	for _, tt := range testCases {
+		t.Run(tt.method, func(t *testing.T) {
+			req := resty.New().R()
+			req.Method = tt.method
+			req.URL = srv.URL + "/update/" + tt.metricType + "/" + tt.metricName + "/" + tt.metricValue
+			req.SetHeader("Content-Type", "text/plain")
+
+			resp, err := req.Send()
+			assert.NoError(t, err)
+			assert.Equal(t, tt.expectedCode, resp.StatusCode())
 		})
 	}
 }
