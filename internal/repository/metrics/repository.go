@@ -13,13 +13,13 @@ import (
 var _ def.ServerRepository = (*MemStorage)(nil)
 
 type MemStorage struct {
-	mu       sync.RWMutex
-	metrics   map[string]model.Metrics
+	mu      sync.RWMutex
+	metrics map[string]model.Metrics
 }
 
 func NewMemStorage() *MemStorage {
 	return &MemStorage{
-		metrics:   make(map[string]model.Metrics),
+		metrics: make(map[string]model.Metrics),
 	}
 }
 
@@ -41,11 +41,11 @@ func (m *MemStorage) SetGaugeByName(_ context.Context, nameMetrics string, value
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	newGaugeMetric := model.Metrics{
+	m.metrics[nameMetrics] = model.Metrics{
+		ID:    nameMetrics,
+		MType: model.Gauge,
 		Value: &valueMetrics,
 	}
-
-	m.metrics[nameMetrics] = newGaugeMetric
 
 	return nil
 }
@@ -55,16 +55,17 @@ func (m *MemStorage) SetCounterByName(_ context.Context, nameMetrics string, val
 	m.mu.Lock()
 	defer m.mu.Unlock()
 
-	metrics := m.metrics[nameMetrics]
-
-	v := float64(valueMetrics)
-	if metrics.Value == nil {
-		metrics.Value = &v
-	} else {
-		*metrics.Value += v
+	metric, ok := m.metrics[nameMetrics]
+	if !ok {
+		metric = model.Metrics{
+			ID:    nameMetrics,
+			MType: model.Counter,
+			Delta: new(int64),
+		}
 	}
 
-	m.metrics[nameMetrics] = metrics
+	*metric.Delta += valueMetrics
+	m.metrics[nameMetrics] = metric
 
 	return nil
 }
