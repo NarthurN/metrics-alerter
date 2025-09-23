@@ -9,23 +9,25 @@ import (
 
 type Reporter struct {
 	client *http.Client
+	addr string
 }
 
-func NewReporter(client *http.Client) *Reporter {
+func NewReporter(client *http.Client, addr string) *Reporter {
 	return &Reporter{
 		client: client,
+		addr: addr,
 	}
 }
 
 func (r *Reporter) SendMetrics(metrics []*metric) error {
 	for _, mtrc := range metrics {
-		url := baseURL + fmt.Sprintf("%s/%s/%f", mtrc.typeM, mtrc.nameM, mtrc.valueM)
+		url := fmt.Sprintf("http://%s/update/%s/%s/%f", r.addr, mtrc.typeM, mtrc.nameM, mtrc.valueM)
 		log.Println(url)
 		resp, err := r.client.Post(url, contentType, http.NoBody)
 		if err != nil {
 			return fmt.Errorf("ошибка http.Post: %w", err)
 		}
-		
+
 		_, _ = io.Copy(io.Discard, resp.Body)
 		resp.Body.Close()
 

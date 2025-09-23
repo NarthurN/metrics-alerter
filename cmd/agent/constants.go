@@ -1,18 +1,10 @@
 package main
 
-import "time"
-
 const (
 	// настройки
 
-	baseURL = "http://localhost:8080/update/"
+	// contentType по заданию
 	contentType = "text/plain"
-
-	// Частота опроса runtime (по заданию — 2 секунды).
-	pollInterval = 2 * time.Second
-
-	// Отправка метрик на сервер с заданной частотой
-	reportInterval = 10 * time.Second
 
 	// Типы метрик по заданию.
 	gauge   = "gauge"
@@ -23,7 +15,6 @@ const (
 	// PollCount — счётчик, увеличивающийся на 1 при каждом обновлении метрики из пакета runtime
 	PollCount = "PollCount"
 
-	
 	// метрики gauge
 
 	// RandomValue — обновляемое произвольное значение
