@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/NarthurN/metrics-alerter/pkg/storage/metrics/model"
 	def "github.com/NarthurN/metrics-alerter/pkg/storage"
+	"github.com/NarthurN/metrics-alerter/pkg/storage/metrics/model"
 )
 
 // Проверяем, что MemStorage реализует интерфейс ServerRepository
@@ -80,4 +80,53 @@ func (m *MemStorage) GetAllMetrics(_ context.Context) ([]model.Metrics, error) {
 	}
 
 	return allMetrics, nil
+}
+
+func (m *MemStorage) UpdateMetricsInStorage(metrics []*model.Metrics) {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+
+	for _, mm := range metrics {
+		mtrc, ok := m.metrics[mm.ID]
+		if !ok {
+			m.metrics[mm.ID] = model.Metrics{
+				ID:    mm.ID,
+				MType: mm.MType,
+				Value: mm.Value,
+			}
+
+			continue
+		}
+
+		switch mm.MType {
+		case model.Gauge:
+			mtrc.Value = mm.Value
+		case model.Counter:
+			*mtrc.Value += *mm.Value
+		}
+	}
+
+	mtrc, ok := m.metrics[model.PollCount]
+	if !ok {
+		m.metrics[model.PollCount] = model.Metrics{
+			ID:    model.PollCount,
+			MType: model.Counter,
+			Value: new(float64),
+		}
+
+		return
+	}
+	*mtrc.Value++
+}
+
+func (m *MemStorage) GetMetricsFromStorage() []*model.Metrics {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	res := make([]*model.Metrics, 0, len(m.metrics))
+	for _, mtrc := range m.metrics {
+		res = append(res, &mtrc)
+	}
+
+	return res
 }

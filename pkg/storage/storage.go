@@ -12,4 +12,5 @@ type Storage interface {
 	SetGaugeByName(ctx context.Context, nameMetrics string, valueMetrics float64) error
 	SetCounterByName(ctx context.Context, nameMetrics string, valueMetrics int64) error
 	GetAllMetrics(ctx context.Context) ([]model.Metrics, error)
+	UpdateMetricsInStorage(metrics []*model.Metrics)
 }

@@ -5,18 +5,16 @@ import (
 	"log"
 	"time"
 
+	"github.com/NarthurN/metrics-alerter/pkg/storage/metrics/storage"
 	"go.uber.org/fx"
 )
 
-// Config хранит всю конфигурацию агента
 type Config struct {
 	Addr           string
 	ReportInterval time.Duration
 	PollInterval   time.Duration
 }
 
-// NewConfig является провайдером для нашей конфигурации.
-// Он парсит флаги и возвращает готовую структуру.
 func NewConfig() *Config {
 	parseFlags()
 	return &Config{
@@ -33,7 +31,8 @@ func main() {
 			NewClient,
 			NewAgent,
 			NewReporter,
-			newMetricsStorage,
+			//newMetricsStorage,
+			storage.NewMemStorage,
 		),
 		fx.Invoke(runAgent),
 	)

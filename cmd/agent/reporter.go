@@ -5,6 +5,8 @@ import (
 	"io"
 	"log"
 	"net/http"
+
+	"github.com/NarthurN/metrics-alerter/pkg/storage/metrics/model"
 )
 
 type Reporter struct {
@@ -19,9 +21,9 @@ func NewReporter(client *Client, config *Config) *Reporter {
 	}
 }
 
-func (r *Reporter) SendMetrics(metrics []*metric) error {
+func (r *Reporter) SendMetrics(metrics []*model.Metrics) error {
 	for _, mtrc := range metrics {
-		url := fmt.Sprintf("http://%s/update/%s/%s/%f", r.addr, mtrc.typeM, mtrc.nameM, mtrc.valueM)
+		url := fmt.Sprintf("http://%s/update/%s/%s/%f", r.addr, mtrc.MType, mtrc.ID, *mtrc.Value)
 		log.Println(url)
 		resp, err := r.client.Client.Post(url, contentType, http.NoBody)
 		if err != nil {
