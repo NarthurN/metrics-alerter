@@ -9,11 +9,7 @@ const (
 	// настройки
 
 	// contentType по заданию
-	contentType = "text/plain"
-
-	// Типы метрик по заданию.
-	gauge   = "gauge"
-	counter = "counter"
+	ContentType = "text/plain"
 
 	// метрики counter
 

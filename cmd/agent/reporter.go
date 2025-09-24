@@ -25,7 +25,7 @@ func (r *Reporter) SendMetrics(metrics []*model.Metrics) error {
 	for _, mtrc := range metrics {
 		url := fmt.Sprintf("http://%s/update/%s/%s/%f", r.addr, mtrc.MType, mtrc.ID, *mtrc.Value)
 		log.Println(url)
-		resp, err := r.client.Client.Post(url, contentType, http.NoBody)
+		resp, err := r.client.Client.Post(url, model.ContentType, http.NoBody)
 		if err != nil {
 			return fmt.Errorf("ошибка http.Post: %w", err)
 		}
