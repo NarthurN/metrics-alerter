@@ -9,8 +9,8 @@ type metric struct {
 }
 
 type metricsStorage struct {
-	mu      sync.RWMutex
 	storage map[string]*metric
+	mu      sync.RWMutex
 }
 
 func newMetricsStorage() *metricsStorage {
@@ -39,7 +39,7 @@ func (m *metricsStorage) UpdateMetricsInStorage(metrics []*metric) {
 		case gauge:
 			mtrc.valueM = mm.valueM
 		case counter:
-			mtrc.valueM += 1
+			mtrc.valueM += mm.valueM
 		}
 	}
 

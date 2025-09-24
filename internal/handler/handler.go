@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/NarthurN/metrics-alerter/internal/model"
 	"github.com/NarthurN/metrics-alerter/internal/service"
@@ -26,7 +27,13 @@ func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
-	err := h.service.SetMetricByName(r.Context(), metricName, metricType, metricValue)
+	delta, err := strconv.ParseFloat(metricValue, 64);
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = h.service.SetMetricByName(r.Context(), metricName, metricType, delta)
 	if err != nil {
 		log.Println("SetMetricByName:", err.Error())
 		w.WriteHeader(http.StatusInternalServerError)
@@ -60,23 +67,6 @@ func (h *Handler) GetMetricByName(w http.ResponseWriter, r *http.Request) {
 
 	w.Write([]byte(value))
 }
-
-const metricsTemplate = `
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Metrics</title>
-</head>
-<body>
-    <h1>All Metrics</h1>
-    <ul>
-        {{range .}}
-            <li>{{.ID}}: {{if eq .MType "gauge"}}{{.Value}}{{else}}{{.Delta}}{{end}}</li>
-        {{end}}
-    </ul>
-</body>
-</html>
-`
 
 func (h *Handler) GetAllMetrics(w http.ResponseWriter, r *http.Request) {
 	metrics, err := h.service.GetAllMetrics(r.Context())

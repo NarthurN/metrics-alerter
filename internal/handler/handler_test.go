@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"testing"
 
 	"github.com/NarthurN/metrics-alerter/internal/handler"
@@ -36,7 +37,7 @@ func (m *MockServerService) GetMetricByName(ctx context.Context, nameMetric stri
 	return model.Metrics{}, args.Error(1)
 }
 
-func (m *MockServerService) SetMetricByName(ctx context.Context, nameMetric, typeMetric, valueMetric string) error {
+func (m *MockServerService) SetMetricByName(ctx context.Context, nameMetric, typeMetric string, valueMetric float64) error {
 	args := m.Called(ctx, nameMetric, typeMetric, valueMetric)
 	return args.Error(0)
 }
@@ -47,7 +48,7 @@ func TestHandler_UpdateMetric(t *testing.T) {
 		name                string
 		metricType          string
 		metricName          string
-		metricValue         string
+		metricValue         float64
 		mockSetup           func()
 		expectedStatus      int
 		expectedContentType string
@@ -56,9 +57,9 @@ func TestHandler_UpdateMetric(t *testing.T) {
 			name:        "Успешный запрос (StatusOK)",
 			metricType:  "gauge",
 			metricName:  "TestMetric",
-			metricValue: "123.45",
+			metricValue: 123.45,
 			mockSetup: func() {
-				mockService.On("SetMetricByName", mock.Anything, "TestMetric", "gauge", "123.45").
+				mockService.On("SetMetricByName", mock.Anything, "TestMetric", "gauge", 123.45).
 					Return(nil).
 					Once()
 			},
@@ -69,9 +70,9 @@ func TestHandler_UpdateMetric(t *testing.T) {
 			name:        "Ошибка от сервиса (InternalServerError)",
 			metricType:  "counter",
 			metricName:  "FailedMetric",
-			metricValue: "10",
+			metricValue: 10,
 			mockSetup: func() {
-				mockService.On("SetMetricByName", mock.Anything, "FailedMetric", "counter", "10").
+				mockService.On("SetMetricByName", mock.Anything, "FailedMetric", "counter", float64(10)).
 					Return(errors.New("something went wrong")).
 					Once()
 			},
@@ -89,7 +90,7 @@ func TestHandler_UpdateMetric(t *testing.T) {
 			rctx := chi.NewRouteContext()
 			rctx.URLParams.Add("metricType", tt.metricType)
 			rctx.URLParams.Add("metricName", tt.metricName)
-			rctx.URLParams.Add("metricValue", tt.metricValue)
+			rctx.URLParams.Add("metricValue", strconv.FormatFloat(tt.metricValue, 'g', 'g', 64))
 			req = req.WithContext(context.WithValue(req.Context(), chi.RouteCtxKey, rctx))
 
 			rr := httptest.NewRecorder()
