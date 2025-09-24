@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/NarthurN/metrics-alerter/internal/model"
+	"github.com/NarthurN/metrics-alerter/pkg/storage/metrics/model"
 )
 
 type ServerService interface {

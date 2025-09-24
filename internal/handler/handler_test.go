@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/NarthurN/metrics-alerter/internal/handler"
-	"github.com/NarthurN/metrics-alerter/internal/model"
+	"github.com/NarthurN/metrics-alerter/pkg/storage/metrics/model"
 	"github.com/NarthurN/metrics-alerter/internal/router"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-resty/resty/v2"

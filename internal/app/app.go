@@ -6,22 +6,21 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/NarthurN/metrics-alerter/internal/repository"
-	repoMetrics "github.com/NarthurN/metrics-alerter/internal/repository/metrics"
 	"github.com/NarthurN/metrics-alerter/internal/router"
 	serviceMetrics "github.com/NarthurN/metrics-alerter/internal/service/metrics"
+	"github.com/NarthurN/metrics-alerter/pkg/storage/metrics/storage"
 )
 
 // Приложение и его зависимости
 type App struct {
-	Storage repository.ServerRepository
+	Storage *storage.MemStorage
 	Server  *http.Server
 	// Logger
 }
 
 func NewApp(addr string) *App {
 	// инициализируем зависимости
-	storage := repoMetrics.NewMemStorage()
+	storage := storage.NewMemStorage()
 	log.Println("✅ Инициализирован репозиторный слой metrics")
 
 	service := serviceMetrics.NewMetricsService(storage)

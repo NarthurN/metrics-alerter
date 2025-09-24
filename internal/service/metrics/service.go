@@ -3,18 +3,18 @@ package metrics
 import (
 	"context"
 
-	"github.com/NarthurN/metrics-alerter/internal/model"
-	"github.com/NarthurN/metrics-alerter/internal/repository"
+	"github.com/NarthurN/metrics-alerter/pkg/storage/metrics/model"
+	"github.com/NarthurN/metrics-alerter/pkg/storage/metrics/storage"
 	def "github.com/NarthurN/metrics-alerter/internal/service"
 )
 
 var _ def.ServerService = (*MetricsService)(nil)
 
 type MetricsService struct {
-	storage repository.ServerRepository
+	storage *storage.MemStorage
 }
 
-func NewMetricsService(s repository.ServerRepository) *MetricsService {
+func NewMetricsService(s *storage.MemStorage) *MetricsService {
 	return &MetricsService{storage: s}
 }
 

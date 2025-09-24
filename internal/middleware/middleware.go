@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/NarthurN/metrics-alerter/internal/model"
+	"github.com/NarthurN/metrics-alerter/pkg/storage/metrics/model"
 	"github.com/go-chi/chi/v5"
 )
 
