@@ -1,32 +1,70 @@
 package main
 
 import (
+	"context"
 	"log"
-	"net/http"
 	"time"
+
+	"go.uber.org/fx"
 )
 
-func main() {
+// Config хранит всю конфигурацию агента
+type Config struct {
+	Addr           string
+	ReportInterval time.Duration
+	PollInterval   time.Duration
+}
+
+// NewConfig является провайдером для нашей конфигурации.
+// Он парсит флаги и возвращает готовую структуру.
+func NewConfig() *Config {
 	parseFlags()
-
-	client := &http.Client{
-		Timeout: time.Second * 1,
+	return &Config{
+		Addr:           flagRunAddr,
+		ReportInterval: time.Duration(reportInterval) * time.Second,
+		PollInterval:   time.Duration(pollInterval) * time.Second,
 	}
+}
 
-	log.Printf("Отправляем метрики на сервер по адресу: %s", flagRunAddr)
-	log.Printf("Частота отправки метрик на сервер: %d", reportInterval)
-	log.Printf("Частота опроса метрик: %d", pollInterval)
-	reporter := NewReporter(client, flagRunAddr)
+func main() {
+	app := fx.New(
+		fx.Provide(
+			NewConfig,
+			NewClient,
+			NewAgent,
+			NewReporter,
+			newMetricsStorage,
+		),
+		fx.Invoke(runAgent),
+	)
 
-	metrics := newMetricsStorage()
+	app.Run()
+}
 
-	agent := NewAgent(metrics, reporter)
+func runAgent(lc fx.Lifecycle, agent *Agent, config *Config) {
+	var pollTicker *time.Ticker
+	var reportTicker *time.Ticker
 
-	tickerPollInterval := time.NewTicker(time.Duration(pollInterval) * time.Second)
-	defer tickerPollInterval.Stop()
+	lc.Append(
+		fx.Hook{
+			OnStart: func(ctx context.Context) error {
+				log.Printf("Отправляем метрики на сервер по адресу: %s", config.Addr)
+				log.Printf("Частота отправки метрик на сервер: %s", config.ReportInterval)
+				log.Printf("Частота опроса метрик: %s", config.PollInterval)
 
-	tickerReportInterval := time.NewTicker(time.Duration(reportInterval) * time.Second)
-	defer tickerReportInterval.Stop()
+				pollTicker = time.NewTicker(config.PollInterval)
+				reportTicker = time.NewTicker(config.ReportInterval)
 
-	agent.Run(tickerPollInterval.C, tickerReportInterval.C)
+				go agent.Run(pollTicker.C, reportTicker.C)
+
+				return nil
+			},
+			OnStop: func(ctx context.Context) error {
+				pollTicker.Stop()
+				reportTicker.Stop()
+				log.Println("Агент остановлен")
+				return nil
+			},
+		},
+	)
 }

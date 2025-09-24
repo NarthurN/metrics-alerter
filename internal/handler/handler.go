@@ -27,7 +27,7 @@ func (h *Handler) UpdateMetric(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "text/plain; charset=utf-8")
 
-	delta, err := strconv.ParseFloat(metricValue, 64);
+	delta, err := strconv.ParseFloat(metricValue, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
