@@ -3,6 +3,7 @@ module github.com/NarthurN/metrics-alerter
 go 1.24.6
 
 require (
+	github.com/caarlos0/env v3.5.0+incompatible
 	github.com/go-chi/chi/v5 v5.2.3
 	github.com/go-resty/resty/v2 v2.16.5
 	github.com/samber/lo v1.51.0
