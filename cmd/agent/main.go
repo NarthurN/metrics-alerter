@@ -22,6 +22,7 @@ func main() {
 	)
 
 	app.Run()
+	app.Stop(context.Background())
 }
 
 func runAgent(lc fx.Lifecycle, agent *Agent, config *Config) {
@@ -32,11 +33,11 @@ func runAgent(lc fx.Lifecycle, agent *Agent, config *Config) {
 		fx.Hook{
 			OnStart: func(ctx context.Context) error {
 				log.Printf("Отправляем метрики на сервер по адресу: %s", config.Addr)
-				log.Printf("Частота отправки метрик на сервер: %s", config.ReportInterval)
-				log.Printf("Частота опроса метрик: %s", config.PollInterval)
+				log.Printf("Частота отправки метрик на сервер: %d", config.ReportInterval)
+				log.Printf("Частота опроса метрик: %d", config.PollInterval)
 
-				pollTicker = time.NewTicker(time.Duration(config.PollInterval))
-				reportTicker = time.NewTicker(time.Duration(config.ReportInterval))
+				pollTicker = time.NewTicker(time.Duration(config.PollInterval) * time.Second)
+				reportTicker = time.NewTicker(time.Duration(config.ReportInterval) * time.Second)
 
 				go agent.Run(pollTicker.C, reportTicker.C)
 
