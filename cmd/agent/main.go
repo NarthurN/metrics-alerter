@@ -35,8 +35,8 @@ func runAgent(lc fx.Lifecycle, agent *Agent, config *Config) {
 				log.Printf("Частота отправки метрик на сервер: %s", config.ReportInterval)
 				log.Printf("Частота опроса метрик: %s", config.PollInterval)
 
-				pollTicker = time.NewTicker(config.PollInterval)
-				reportTicker = time.NewTicker(config.ReportInterval)
+				pollTicker = time.NewTicker(time.Duration(config.PollInterval))
+				reportTicker = time.NewTicker(time.Duration(config.ReportInterval))
 
 				go agent.Run(pollTicker.C, reportTicker.C)
 

@@ -3,15 +3,14 @@ package main
 import (
 	"flag"
 	"log"
-	"time"
 
 	"github.com/caarlos0/env"
 )
 
 type Config struct {
-	Addr           string        `env:"ADDRESS"`
-	ReportInterval time.Duration `env:"REPORT_INTERVAL"`
-	PollInterval   time.Duration `env:"POLL_INTERVAL"`
+	Addr           string `env:"ADDRESS"`
+	ReportInterval int    `env:"REPORT_INTERVAL"`
+	PollInterval   int    `env:"POLL_INTERVAL"`
 }
 
 var flagRunAddr string
@@ -39,11 +38,11 @@ func NewConfig() *Config {
 	}
 
 	if cfg.ReportInterval == 0 {
-		cfg.ReportInterval = time.Duration(reportInterval) * time.Second
+		cfg.ReportInterval = reportInterval
 	}
 
 	if cfg.PollInterval == 0 {
-		cfg.PollInterval = time.Duration(pollInterval) * time.Second
+		cfg.PollInterval = pollInterval
 	}
 
 	return &cfg
