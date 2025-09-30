@@ -45,8 +45,8 @@ func NewApp(addr string) *App {
 	}
 }
 
-func (a *App) Run(addr string) error {
-	log.Println("🚀 Сервер слушает на порту", addr)
+func (a *App) Run() error {
+	log.Println("🚀 Сервер слушает на порту", a.Server.Addr)
 	if err := a.Server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		return err
 	}

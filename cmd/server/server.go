@@ -12,9 +12,9 @@ func main() {
 	cfg := NewConfig()
 
 	// Инициализация зависимостей приложения
-	application := app.NewApp(flagRunAddr)
+	application := app.NewApp(cfg.Addr)
 
-	if err := application.Run(cfg.Addr); err != nil {
+	if err := application.Run(); err != nil {
 		log.Fatalf("Ошибка при запуске http-сервера: %v", err)
 	}
 
